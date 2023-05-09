@@ -7,12 +7,13 @@ const userRouter = require("./src/routers/user");
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: "*" }));
-app.use(userRouter);
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   next();
 });
+
+app.use(userRouter);
 
 app.get("/", (req, res) => {
   res.send({ message: "working" });
