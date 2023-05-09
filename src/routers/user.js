@@ -33,37 +33,7 @@ router.post("/users/login", async (req, res) => {
       questions,
       token,
       id: user._id,
-    });
-  } catch (error) {
-    res.status(400).send(error);
-  }
-});
-
-router.post("/addQuestions", async (req, res) => {
-  try {
-    const { token, id, questions } = req.body;
-    const user = await User.findById(id);
-    if (!user.token === token) {
-      return res.status(401).send({ message: "unauthorized" });
-    }
-    const userQuestions = await user.addQuestions(questions);
-    res.status(201).send({
-      questions: userQuestions,
-    });
-  } catch (error) {
-    res.status(400).send(error);
-  }
-});
-
-router.post("/getQuestions", async (req, res) => {
-  try {
-    const { token, id } = req.body;
-    const user = await User.findById(id);
-    if (!user.token === token) {
-      return res.status(401).send({ message: "unauthorized" });
-    }
-    res.status(201).send({
-      questions: user.questions,
+      isAdmin: user.isAdmin,
     });
   } catch (error) {
     res.status(400).send(error);
