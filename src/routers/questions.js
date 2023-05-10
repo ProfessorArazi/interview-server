@@ -7,17 +7,18 @@ const { getUser } = require("../../helpers");
 router.post("/addQuestions", async (req, res) => {
   try {
     const { token, id, questions, community } = req.body;
-    const user = await User.findById(id);
-    if (!user.token === token) {
-      return res.status(401).send({ message: "unauthorized" });
+    if (id) {
+      const user = await User.findById(id);
+      if (!user.token === token) {
+        return res.status(401).send({ message: "unauthorized" });
+      }
+      const userQuestions = await user.addQuestions(questions);
+      res.status(201).send({
+        questions: userQuestions,
+      });
     }
-    const userQuestions = await user.addQuestions(questions);
-    res.status(201).send({
-      questions: userQuestions,
-    });
     if (community) {
       const question = new Questions(questions[0]);
-      console.log(question);
       await question.save();
     }
   } catch (error) {
@@ -34,6 +35,23 @@ router.post("/getQuestions", async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    res.status(400).send(error);
+  }
+});
+
+router.post("/approveQuestions", async (req, res) => {
+  try {
+    const user = await getUser(req.body);
+    if (user) {
+      const { approved, rejected } = req.body;
+      await Questions.deleteMany({ _id: { $in: rejected } });
+      await Questions.updateMany(
+        { _id: { $in: approved } },
+        { $set: { valid: true } }
+      );
+      res.status(200).send({ message: "Questions updated successfully" });
+    }
+  } catch (error) {
     res.status(400).send(error);
   }
 });
