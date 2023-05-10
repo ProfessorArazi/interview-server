@@ -18,7 +18,7 @@ router.post("/addQuestions", async (req, res) => {
       });
     }
     if (community) {
-      const question = new Questions(questions[0]);
+      const question = new Questions({ ...questions[0], userId: id || "" });
       await question.save();
     }
   } catch (error) {
@@ -58,7 +58,8 @@ router.post("/approveQuestions", async (req, res) => {
 
 router.post("/community", async (req, res) => {
   try {
-    const user = await getUser(req.body);
+    const { id } = req.body;
+    const user = id ? await getUser(req.body) : {};
     const { valid } = req.body;
     if (!valid && user.isAdmin) {
       const invalidQuestions = await Questions.find({ valid: false });
@@ -66,7 +67,10 @@ router.post("/community", async (req, res) => {
         questions: invalidQuestions,
       });
     }
-    const validQuestions = await Questions.find({ valid: true });
+    const validQuestions = await Questions.find({
+      valid: true,
+      userId: { $ne: id },
+    });
 
     res.status(200).send({
       questions: validQuestions,
