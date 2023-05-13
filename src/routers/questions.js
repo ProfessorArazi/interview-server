@@ -12,7 +12,9 @@ router.post("/addQuestions", async (req, res) => {
       if (!user.token === token) {
         return res.status(401).send({ message: "unauthorized" });
       }
-      const userQuestions = await user.addQuestions(questions);
+      const userQuestions = await user.addQuestions([
+        { ...questions[0], sharedWithCommunity: community },
+      ]);
       res.status(201).send({
         question: userQuestions[userQuestions.length - 1],
       });
@@ -34,6 +36,7 @@ router.post("/getQuestions", async (req, res) => {
       isAdmin: user.isAdmin,
     });
   } catch (error) {
+    console.log(error);
     res.status(400).send(error);
   }
 });
