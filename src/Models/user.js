@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema({
     {
       subject: String,
       questions: Array,
+      sharedWithCommunity: Boolean,
     },
   ],
 
@@ -63,6 +64,19 @@ userSchema.methods.generateAuthToken = async function () {
 userSchema.methods.addQuestions = async function (questions) {
   try {
     this.questions.push(...questions);
+    await this.save();
+    return this.questions;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+userSchema.methods.editQuestions = async function (questions, subjectId) {
+  try {
+    const oldIndex = this.questions.findIndex(
+      (question) => question._id.toString() === subjectId
+    );
+    this.questions.splice(oldIndex, 1, questions);
     await this.save();
     return this.questions;
   } catch (e) {

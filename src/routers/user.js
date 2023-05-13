@@ -10,6 +10,7 @@ router.post("/users", async (req, res) => {
     res.status(201).send({
       id: user._id,
       token,
+      questions: user.questions,
     });
   } catch (error) {
     const { password, userName, questions } = error.errors;

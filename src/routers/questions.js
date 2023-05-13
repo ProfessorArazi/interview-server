@@ -14,7 +14,7 @@ router.post("/addQuestions", async (req, res) => {
       }
       const userQuestions = await user.addQuestions(questions);
       res.status(201).send({
-        questions: userQuestions,
+        question: userQuestions[userQuestions.length - 1],
       });
     }
     if (community) {
@@ -34,7 +34,19 @@ router.post("/getQuestions", async (req, res) => {
       isAdmin: user.isAdmin,
     });
   } catch (error) {
-    console.log(error);
+    res.status(400).send(error);
+  }
+});
+
+router.post("/editQuestions", async (req, res) => {
+  try {
+    const user = await getUser(req.body);
+    const { questions, subjectId } = req.body;
+    const userQuestions = await user.editQuestions(questions[0], subjectId);
+    res.status(201).send({
+      questions: userQuestions,
+    });
+  } catch (error) {
     res.status(400).send(error);
   }
 });
