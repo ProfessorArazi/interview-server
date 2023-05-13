@@ -42,7 +42,7 @@ router.post("/editQuestions", async (req, res) => {
   try {
     const user = await getUser(req.body);
     const { questions, subjectId } = req.body;
-    const userQuestions = await user.editQuestions(questions[0], subjectId);
+    const userQuestions = await user.editQuestions(questions, subjectId);
     res.status(201).send({
       questions: userQuestions,
     });

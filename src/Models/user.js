@@ -76,7 +76,12 @@ userSchema.methods.editQuestions = async function (questions, subjectId) {
     const oldIndex = this.questions.findIndex(
       (question) => question._id.toString() === subjectId
     );
-    this.questions.splice(oldIndex, 1, questions);
+    if (!questions) {
+      this.questions.splice(oldIndex, 1);
+    } else {
+      this.questions.splice(oldIndex, 1, questions);
+    }
+
     await this.save();
     return this.questions;
   } catch (e) {
