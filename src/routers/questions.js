@@ -7,21 +7,23 @@ const { getUser } = require("../../helpers");
 router.post("/addQuestions", async (req, res) => {
   try {
     const { token, id, questions, community } = req.body;
+    let communityId = "";
+    if (community) {
+      const question = new Questions({ ...questions[0], userId: id || "" });
+      communityId = question._id;
+      await question.save();
+    }
     if (id) {
       const user = await User.findById(id);
       if (!user.token === token) {
         return res.status(401).send({ message: "unauthorized" });
       }
       const userQuestions = await user.addQuestions([
-        { ...questions[0], sharedWithCommunity: community },
+        { ...questions[0], communityId },
       ]);
       res.status(201).send({
         question: userQuestions[userQuestions.length - 1],
       });
-    }
-    if (community) {
-      const question = new Questions({ ...questions[0], userId: id || "" });
-      await question.save();
     }
   } catch (error) {
     res.status(400).send(error);
@@ -45,7 +47,16 @@ router.post("/editQuestions", async (req, res) => {
   try {
     const user = await getUser(req.body);
     const { questions, subjectId } = req.body;
-    const userQuestions = await user.editQuestions(questions, subjectId);
+    const { userQuestions, communityId } = await user.editQuestions(
+      questions,
+      subjectId
+    );
+    if (questions && communityId) {
+      await Questions.findByIdAndUpdate(
+        { _id: communityId },
+        { ...questions, valid: false }
+      );
+    }
     res.status(201).send({
       questions: userQuestions,
     });

@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
     {
       subject: String,
       questions: Array,
-      sharedWithCommunity: Boolean,
+      communityId: String,
     },
   ],
 
@@ -76,14 +76,14 @@ userSchema.methods.editQuestions = async function (questions, subjectId) {
     const oldIndex = this.questions.findIndex(
       (question) => question._id.toString() === subjectId
     );
+    const communityId = this.questions[oldIndex].communityId;
     if (!questions) {
       this.questions.splice(oldIndex, 1);
     } else {
-      this.questions.splice(oldIndex, 1, questions);
+      this.questions.splice(oldIndex, 1, { ...questions, communityId });
     }
-
     await this.save();
-    return this.questions;
+    return { userQuestions: this.questions, communityId };
   } catch (e) {
     console.log(e);
   }
