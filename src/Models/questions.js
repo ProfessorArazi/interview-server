@@ -29,6 +29,9 @@ const questionsSchema = new mongoose.Schema({
   userId: {
     type: String,
   },
+  url: {
+    type: String,
+  },
 });
 
 const Questions = mongoose.model("Questions", questionsSchema);

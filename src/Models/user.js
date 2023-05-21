@@ -34,6 +34,13 @@ const userSchema = new mongoose.Schema({
     },
   ],
 
+  communityQuestions: [
+    {
+      subject: String,
+      questions: Array,
+    },
+  ],
+
   token: {
     type: String,
     required: true,

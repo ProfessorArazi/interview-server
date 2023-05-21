@@ -35,10 +35,10 @@ router.post("/getQuestions", async (req, res) => {
     const user = await getUser(req.body);
     res.status(201).send({
       questions: user.questions,
+      communityQuestions: user.communityQuestions,
       isAdmin: user.isAdmin,
     });
   } catch (error) {
-    console.log(error);
     res.status(400).send(error);
   }
 });
@@ -59,6 +59,7 @@ router.post("/editQuestions", async (req, res) => {
     }
     res.status(201).send({
       questions: userQuestions,
+      communityQuestions: user.communityQuestions,
     });
   } catch (error) {
     res.status(400).send(error);
@@ -84,7 +85,7 @@ router.post("/approveQuestions", async (req, res) => {
 
 router.post("/community", async (req, res) => {
   try {
-    const { id } = req.body;
+    const { id, communityId } = req.body;
     const user = id ? await getUser(req.body) : {};
     const { valid } = req.body;
     if (!valid && user.isAdmin) {
@@ -96,10 +97,47 @@ router.post("/community", async (req, res) => {
     const validQuestions = await Questions.find({
       valid: true,
       userId: { $ne: id },
+      _id: communityId,
     });
+    if (user) user.communityQuestions.push(validQuestions[0]);
+    await user.save();
 
     res.status(200).send({
       questions: validQuestions,
+    });
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+router.post("/community/remove", async (req, res) => {
+  try {
+    const user = await getUser(req.body);
+    const { communityId } = req.body;
+    const communityIndex = user.communityQuestions.findIndex(
+      (community) => community._id === communityId
+    );
+    user.communityQuestions.splice(communityIndex, 1);
+    await user.save();
+
+    res.status(200).send({
+      questions: user.communityQuestions,
+    });
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+router.post("/community/keys", async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const subjects = await Questions.find({
+      userId: { $ne: id },
+      valid: true,
+    }).select("subject");
+    res.status(200).send({
+      subjects,
     });
   } catch (error) {
     res.status(400).send(error);

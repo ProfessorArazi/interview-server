@@ -11,6 +11,7 @@ router.post("/users", async (req, res) => {
       id: user._id,
       token,
       questions: user.questions,
+      communityQuestions: user.communityQuestions,
     });
   } catch (error) {
     const { password, userName, questions } = error.errors;
@@ -36,6 +37,7 @@ router.post("/users/login", async (req, res) => {
       token,
       id: user._id,
       isAdmin: user.isAdmin,
+      communityQuestions: user.communityQuestions,
     });
   } catch (error) {
     res.status(400).send(error);
