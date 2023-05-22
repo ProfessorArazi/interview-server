@@ -3,7 +3,18 @@ const router = new express.Router();
 const User = require("../Models/user");
 
 router.post("/users", async (req, res) => {
-  const user = new User(req.body);
+  const user = new User({
+    ...req.body,
+    questions: req.body.questions.map((question) => ({
+      subject: question.subject,
+      questions: question.questions,
+      communityId: question.communityId,
+    })),
+    communityQuestions: req.body.communityQuestions.map((question) => ({
+      subject: question.subject,
+      questions: question.questions,
+    })),
+  });
   try {
     const token = await user.generateAuthToken();
     await user.save();
