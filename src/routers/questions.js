@@ -18,9 +18,9 @@ router.post("/addQuestions", async (req, res) => {
       if (!user.token === token) {
         return res.status(401).send({ message: "unauthorized" });
       }
-      const userQuestions = await user.addQuestions([
-        { ...questions[0], communityId },
-      ]);
+      const userQuestions = await user.addQuestions({
+        questions: [{ ...questions[0], communityId }],
+      });
       res.status(201).send({
         question: userQuestions[userQuestions.length - 1],
       });
@@ -86,7 +86,7 @@ router.post("/approveQuestions", async (req, res) => {
 router.post("/community", async (req, res) => {
   try {
     const { id, communityId } = req.body;
-    const user = id ? await getUser(req.body) : {};
+    const user = id ? await getUser(req.body) : null;
     const { valid } = req.body;
     if (!valid && user.isAdmin) {
       const invalidQuestions = await Questions.find({ valid: false });
@@ -99,13 +99,16 @@ router.post("/community", async (req, res) => {
       userId: { $ne: id },
       _id: communityId,
     });
-    if (user) user.communityQuestions.push(validQuestions[0]);
-    await user.save();
+    if (user) {
+      user.communityQuestions.push(validQuestions[0]);
+      await user.save();
+    }
 
     res.status(200).send({
       questions: validQuestions,
     });
   } catch (error) {
+    console.log(error);
     res.status(400).send(error);
   }
 });

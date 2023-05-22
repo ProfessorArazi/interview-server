@@ -68,9 +68,11 @@ userSchema.methods.generateAuthToken = async function () {
   }
 };
 
-userSchema.methods.addQuestions = async function (questions) {
+userSchema.methods.addQuestions = async function (data) {
   try {
+    const { questions, communityQuestions } = data;
     this.questions.push(...questions);
+    if (communityQuestions) this.communityQuestions.push(...communityQuestions);
     await this.save();
     return this.questions;
   } catch (e) {

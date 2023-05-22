@@ -30,7 +30,7 @@ router.post("/users/login", async (req, res) => {
       req.body.password
     );
     if (user.error) return res.status(401).send(user);
-    const questions = await user.addQuestions(req.body.questions);
+    const questions = await user.addQuestions(req.body);
     const token = await user.generateAuthToken();
     res.send({
       questions,
