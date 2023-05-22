@@ -71,7 +71,13 @@ userSchema.methods.generateAuthToken = async function () {
 userSchema.methods.addQuestions = async function (data) {
   try {
     const { questions, communityQuestions } = data;
-    this.questions.push(...questions);
+    this.questions.push(
+      ...questions.map((question) => ({
+        subject: question.subject,
+        questions: question.questions,
+        communityId: question.communityId,
+      }))
+    );
     if (communityQuestions) this.communityQuestions.push(...communityQuestions);
     await this.save();
     return this.questions;
