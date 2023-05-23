@@ -118,7 +118,7 @@ router.post("/community/remove", async (req, res) => {
     const user = await getUser(req.body);
     const { communityId } = req.body;
     const communityIndex = user.communityQuestions.findIndex(
-      (community) => community._id === communityId
+      (community) => community._id.toString() === communityId
     );
     user.communityQuestions.splice(communityIndex, 1);
     await user.save();
