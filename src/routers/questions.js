@@ -12,6 +12,11 @@ router.post("/addQuestions", async (req, res) => {
       const question = new Questions({ ...questions[0], userId: id || "" });
       communityId = question._id;
       await question.save();
+      if (!id) {
+        res.status(201).send({
+          message: "added to community!",
+        });
+      }
     }
     if (id) {
       const user = await User.findById(id);
@@ -22,7 +27,7 @@ router.post("/addQuestions", async (req, res) => {
         questions: [{ ...questions[0], communityId }],
       });
       res.status(201).send({
-        question: userQuestions[userQuestions.length - 1],
+        questions: userQuestions,
       });
     }
   } catch (error) {
