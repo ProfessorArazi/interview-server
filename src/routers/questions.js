@@ -57,10 +57,13 @@ router.post("/editQuestions", async (req, res) => {
       subjectId
     );
     if (questions && communityId) {
-      await Questions.findByIdAndUpdate(
-        { _id: communityId },
-        { ...questions, valid: false }
-      );
+      const communityQuestions = await Questions.find({ _id: communityId });
+      if (!communityQuestions[0].valid) {
+        await Questions.findByIdAndUpdate(
+          { _id: communityId },
+          { ...questions }
+        );
+      }
     }
     res.status(201).send({
       questions: userQuestions,
